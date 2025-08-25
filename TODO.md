@@ -47,4 +47,16 @@
 - [x] Testing strategy documentation
 - [x] Obfuscation analysis
 
+## Future Enhancements
+- [ ] Implement proper HMAC signature validation for enhanced security
+- [ ] Add detailed entropy data analysis for better client validation
+- [ ] Enhance mouse movement tracking with more sophisticated pattern recognition
+- [ ] Implement advanced OpenAI client features and API compatibility
+- [ ] Add entropy-based rate limiting adjustments
+- [ ] Implement detailed entropy analytics dashboard
+- [ ] Enhance request signature validation with cryptographic HMAC
+- [ ] Add support for additional OpenAI API endpoints in the client wrapper
+- [ ] Implement entropy quality scoring system
+- [ ] Add advanced mouse movement pattern analysis for bot detection
+
 Perishable is now a complete, secure proxy solution for OpenAI API that prevents key abuse while maintaining full SDK compatibility, with enhanced security features including entropy collection, comprehensive testing strategy, and detailed documentation!
