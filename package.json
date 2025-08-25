@@ -1,0 +1,45 @@
+{
+  "name": "perishable",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts",
+    "test": "vitest",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "openai",
+    "proxy",
+    "security",
+    "api",
+    "sdk"
+  ],
+  "author": "Dipankar Sarkar <me@dipankar.name>",
+  "license": "MIT",
+  "description": "A secure proxy for OpenAI (and compatible) APIs that prevents key abuse. You will never have to worry about exposing your keys when vibecoding.",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "eslint": "^9.34.0",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "openai": "^5.15.0",
+    "rate-limiter-flexible": "^7.2.0"
+  },
+  "files": [
+    "dist/**/*"
+  ]
+}
