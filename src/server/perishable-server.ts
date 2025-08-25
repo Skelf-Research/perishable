@@ -10,6 +10,11 @@ export interface PerishableServerOptions {
   openaiApiKey: string;
   
   /**
+   * The base URL for the OpenAI API (default: https://api.openai.com/v1)
+   */
+  openaiBaseUrl?: string;
+  
+  /**
    * The port to run the server on
    */
   port?: number;
@@ -77,7 +82,10 @@ export class PerishableServer {
   constructor(options: PerishableServerOptions) {
     this.app = express();
     this.port = options.port || 3000;
-    this.openai = new OpenAI({ apiKey: options.openaiApiKey });
+    this.openai = new OpenAI({ 
+      apiKey: options.openaiApiKey,
+      baseURL: options.openaiBaseUrl || 'https://api.openai.com/v1'
+    });
     this.sessions = new Map();
     
     // Set up session options
@@ -336,8 +344,11 @@ export class PerishableServer {
         const openaiEndpoint = req.url.replace('/openai', '');
         const session = (req as any).session;
         
+        // Use the configured base URL or default to OpenAI
+        const baseUrl = this.openai.baseURL || 'https://api.openai.com/v1';
+        
         // Prepare the request to OpenAI
-        const openaiResponse = await fetch(`https://api.openai.com/v1${openaiEndpoint}`, {
+        const openaiResponse = await fetch(`${baseUrl}${openaiEndpoint}`, {
           method: req.method,
           headers: {
             'Authorization': `Bearer ${this.openai.apiKey}`,

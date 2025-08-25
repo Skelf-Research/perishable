@@ -1,8 +1,11 @@
 {
   "name": "perishable",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "perishable-proxy": "dist/server/cli.js"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
@@ -16,7 +19,10 @@
     "proxy",
     "security",
     "api",
-    "sdk"
+    "sdk",
+    "anthropic",
+    "openrouter",
+    "compatible"
   ],
   "author": "Dipankar Sarkar <me@dipankar.name>",
   "license": "MIT",
@@ -34,6 +40,7 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "commander": "^14.0.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "openai": "^5.15.0",

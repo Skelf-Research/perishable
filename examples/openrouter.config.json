@@ -1,0 +1,22 @@
+{
+  "openaiBaseUrl": "https://openrouter.ai/api/v1",
+  "port": 8080,
+  "rateLimitOptions": {
+    "points": 50,
+    "duration": 60,
+    "blockDuration": 300
+  },
+  "clientValidationOptions": {
+    "enableFingerprintValidation": true,
+    "maxSessionsPerFingerprint": 3,
+    "enableEntropyValidation": true,
+    "minEntropyThreshold": 100
+  },
+  "sessionOptions": {
+    "timeout": 900000
+  },
+  "securityOptions": {
+    "enableCORS": true,
+    "allowedOrigins": ["https://yourdomain.com", "http://localhost:3000"]
+  }
+}

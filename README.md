@@ -21,6 +21,31 @@ The library includes multiple security features to prevent API abuse:
 npm install perishable
 ```
 
+## CLI Usage
+
+Perishable includes a command-line interface for easily running the proxy server:
+
+```bash
+# Install globally to use the CLI directly
+npm install -g perishable
+
+# Run with environment variable for API key
+OPENAI_API_KEY=your-api-key perishable-proxy
+
+# Run with a configuration file
+perishable-proxy --config ./perishable.config.json
+
+# Run with specific options
+OPENAI_API_KEY=your-api-key perishable-proxy --port 8080
+
+# Run with a custom OpenAI-compatible API
+OPENAI_API_KEY=your-api-key OPENAI_BASE_URL=https://api.anthropic.com/v1 perishable-proxy
+```
+
+The CLI will automatically look for a `perishable.config.json` file in the current directory if no config file is specified.
+
+For detailed CLI documentation, see [CLI Usage Guide](docs/cli-usage.md).
+
 ## Usage
 
 ### Server Setup
@@ -213,6 +238,7 @@ Health check endpoint.
 ```typescript
 interface PerishableServerOptions {
   openaiApiKey: string;
+  openaiBaseUrl?: string;  // Base URL for OpenAI API (default: https://api.openai.com/v1)
   port?: number;
   
   rateLimitOptions?: {
@@ -237,6 +263,47 @@ interface PerishableServerOptions {
     allowedOrigins?: string[]; // Allowed origins for CORS
   };
 }
+```
+
+### Configuration File
+
+You can create a `perishable.config.json` file in your project directory to configure the server:
+
+```json
+{
+  "port": 3000,
+  "rateLimitOptions": {
+    "points": 100,
+    "duration": 60,
+    "blockDuration": 60
+  },
+  "clientValidationOptions": {
+    "enableFingerprintValidation": true,
+    "maxSessionsPerFingerprint": 5,
+    "enableEntropyValidation": true,
+    "minEntropyThreshold": 50
+  },
+  "sessionOptions": {
+    "timeout": 1800000
+  },
+  "securityOptions": {
+    "enableCORS": true,
+    "allowedOrigins": ["*"]
+  }
+}
+```
+
+### CLI Options
+
+```bash
+perishable-proxy [options]
+
+Options:
+  -c, --config <path>     Path to configuration file
+  -p, --port <number>     Port to run the server on
+  --openai-api-key <key>  OpenAI API key
+  -h, --help              Display help for command
+  -V, --version           Display version information
 ```
 
 ### Client Options

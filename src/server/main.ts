@@ -10,10 +10,18 @@ if (!openaiApiKey) {
   process.exit(1);
 }
 
-// Create and start the server
-const server = new PerishableServer({
+// Prepare server options
+const serverOptions: any = {
   openaiApiKey,
   port: parseInt(process.env.PORT || '3000', 10)
-});
+};
+
+// Add base URL if provided
+if (process.env.OPENAI_BASE_URL) {
+  serverOptions.openaiBaseUrl = process.env.OPENAI_BASE_URL;
+}
+
+// Create and start the server
+const server = new PerishableServer(serverOptions);
 
 server.start();
