@@ -1,0 +1,58 @@
+site_name: Perishable
+site_description: Secure proxy for OpenAI APIs - Protect your API keys from abuse
+repo_url: https://github.com/nicksarkar/perishable
+repo_name: perishable
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - content.code.annotate
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Installation: installation.md
+  - Guides:
+    - Client Library: guides/client.md
+    - Server Setup: guides/server.md
+    - CLI Usage: guides/cli.md
+  - API Reference:
+    - PerishableClient: api/client-api.md
+    - PerishableServer: api/server-api.md
+    - PerishableOpenAI: api/openai-wrapper.md
+  - Configuration: configuration.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/nicksarkar/perishable

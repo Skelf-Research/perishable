@@ -1,297 +1,108 @@
 # Perishable
 
-A secure proxy for OpenAI API that prevents key abuse while maintaining full SDK compatibility.
+[![npm version](https://img.shields.io/npm/v/perishable.svg?style=flat-square)](https://www.npmjs.com/package/perishable)
+[![npm downloads](https://img.shields.io/npm/dm/perishable.svg?style=flat-square)](https://www.npmjs.com/package/perishable)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg?style=flat-square)](https://nodejs.org/)
 
-## Overview
+**Ship AI features without shipping your API keys.**
 
-Perishable is a library that allows frontend applications to use OpenAI's API without exposing API keys. It consists of two parts:
+Perishable is a drop-in proxy that lets your frontend talk to OpenAI (or any compatible API) without exposing your secret keys. Built-in bot protection, rate limiting, and session management included.
 
-1. A client-side library that acts as a shim layer over the OpenAI SDK
-2. A proxy server that validates requests and forwards them to OpenAI
+---
 
-The library includes multiple security features to prevent API abuse:
-- Client fingerprinting with entropy collection
-- Session management
-- Rate limiting
-- Request validation
+## Why Perishable?
 
-## Installation
+Building AI-powered apps is fun until you realize you can't safely call OpenAI from the browser. You either:
+
+- Build a backend just to proxy API calls *(boring)*
+- Expose your API key and pray *(dangerous)*
+- Use Perishable *(smart)*
+
+```
+Browser  →  Perishable Proxy  →  OpenAI
+   ↑              ↓
+   └── JWT + Fingerprint ──┘
+```
+
+Your API key stays on your server. Clients get short-lived tokens. Bots get blocked.
+
+---
+
+## Quick Start
+
+### 1. Install
 
 ```bash
 npm install perishable
 ```
 
-## CLI Usage
-
-Perishable includes a command-line interface for easily running the proxy server:
+### 2. Start the proxy
 
 ```bash
-# Install globally to use the CLI directly
-npm install -g perishable
-
-# Run with environment variable for API key
-OPENAI_API_KEY=your-api-key perishable-proxy
-
-# Run with a configuration file
-perishable-proxy --config ./perishable.config.json
-
-# Run with specific options
-OPENAI_API_KEY=your-api-key perishable-proxy --port 8080
-
-# Run with a custom OpenAI-compatible API
-OPENAI_API_KEY=your-api-key OPENAI_BASE_URL=https://api.anthropic.com/v1 perishable-proxy
+OPENAI_API_KEY=sk-... npx perishable-proxy
 ```
 
-The CLI will automatically look for a `perishable.config.json` file in the current directory if no config file is specified.
-
-For detailed CLI documentation, see [CLI Usage Guide](docs/cli-usage.md).
-
-## Usage
-
-### Server Setup
-
-First, set up the Perishable proxy server:
-
-```javascript
-import { server } from 'perishable';
-
-const serverInstance = new server.PerishableServer({
-  openaiApiKey: process.env.OPENAI_API_KEY,
-  port: 3000,
-  rateLimitOptions: {
-    points: 100,        // requests
-    duration: 60,       // per 60 seconds
-    blockDuration: 60   // block for 60 seconds when rate limit exceeded
-  },
-  clientValidationOptions: {
-    enableFingerprintValidation: true,
-    maxSessionsPerFingerprint: 5,
-    enableEntropyValidation: true,
-    minEntropyThreshold: 50
-  },
-  sessionOptions: {
-    timeout: 30 * 60 * 1000 // 30 minutes
-  },
-  securityOptions: {
-    enableCORS: true,
-    allowedOrigins: ['*']
-  }
-});
-
-serverInstance.start();
-```
-
-### Client Setup
-
-Then, use the client library in your frontend application:
+### 3. Use in your app
 
 ```javascript
 import { client } from 'perishable';
 
-// Initialize entropy collection for enhanced security
+// Initialize (call once on page load)
 client.PerishableOpenAI.initEntropyCollection();
 
-const perishableClient = new client.PerishableOpenAI({
-  proxyUrl: 'http://localhost:3000',
-  abusePreventionOptions: {
-    maxRetries: 3,
-    retryDelay: 1000,
-    requestTimeout: 30000,
-    requireUserInteraction: true
-  },
-  sessionOptions: {
-    expiryBuffer: 5 * 60 * 1000 // 5 minutes
-  }
+// Create client
+const ai = new client.PerishableOpenAI({
+  proxyUrl: 'http://localhost:3000'
 });
 
-// Create a chat completion
-const response = await perishableClient.createChatCompletion({
-  model: 'gpt-3.5-turbo',
-  messages: [
-    {
-      role: 'user',
-      content: 'Hello!'
-    }
-  ]
-});
-
-const data = await response.json();
-console.log(data.choices[0].message.content);
-```
-
-### Direct API Access (for development/testing)
-
-For development and testing, you can use the Perishable client with a direct OpenAI API key:
-
-```javascript
-import { client } from 'perishable';
-
-const perishableClient = new client.PerishableOpenAI({
-  proxyUrl: 'http://localhost:3000',
-  apiKey: process.env.OPENAI_API_KEY // Direct API access
-});
-
-// This will use the OpenAI API directly, bypassing the proxy
-const response = await perishableClient.createChatCompletion({
-  model: 'gpt-3.5-turbo',
-  messages: [
-    {
-      role: 'user',
-      content: 'Hello!'
-    }
-  ]
+// Make requests like normal
+const response = await ai.createChatCompletion({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Hello!' }]
 });
 ```
 
-## Security Features
+That's it. Your API key never touches the browser.
 
-### Client Fingerprinting with Entropy Collection
+---
 
-Perishable generates a fingerprint for each client based on various browser characteristics and requires user interaction entropy:
+## Features
 
-- User agent
-- Language
-- Timezone
-- Screen dimensions
-- Installed plugins
-- Canvas rendering
-- WebGL capabilities
-- Mouse movements
-- Key presses
+| Feature | Description |
+|---------|-------------|
+| **Zero Config** | Works out of the box with sensible defaults |
+| **Bot Protection** | Fingerprinting + entropy collection blocks automated abuse |
+| **Rate Limiting** | Built-in per-client rate limits (configurable) |
+| **Session Management** | JWT-based sessions with auto-expiry |
+| **OpenAI Compatible** | Works with OpenAI, Anthropic, OpenRouter, local LLMs |
+| **TypeScript** | Full type definitions included |
+| **CLI & SDK** | Use the CLI for quick setup, SDK for full control |
 
-The client must provide sufficient entropy through user interactions before a session can be created:
-- Minimum 10 mouse movements OR
-- Minimum 3 key presses OR
-- 5 seconds of page activity
+---
 
-### Session Management
+## Works With
 
-Clients must create sessions before making API requests:
-- Sessions expire after 30 minutes of inactivity (configurable)
-- Each session is tied to a specific client fingerprint
-- Sessions are automatically cleaned up
+Perishable proxies any OpenAI-compatible API:
 
-### Rate Limiting
+```bash
+# OpenAI (default)
+OPENAI_API_KEY=sk-... perishable-proxy
 
-The proxy server implements rate limiting:
-- By default, 100 requests per minute per client (configurable)
-- Automatic IP and session-based tracking
-- Configurable block duration when rate limit is exceeded
+# Anthropic
+OPENAI_API_KEY=sk-ant-... OPENAI_BASE_URL=https://api.anthropic.com/v1 perishable-proxy
 
-### Client Validation
+# OpenRouter
+OPENAI_API_KEY=sk-or-... OPENAI_BASE_URL=https://openrouter.ai/api/v1 perishable-proxy
 
-The proxy server validates clients:
-- Fingerprint validation (optional but recommended)
-- Entropy validation (requires user interaction)
-- Session validation
-- Request validation
-
-## API Endpoints
-
-### POST /session
-
-Create a new session.
-
-**Request Body:**
-```json
-{
-  "fingerprint": "client-fingerprint-string",
-  "entropyData": "entropy-data-string"
-}
+# Local LLM (Ollama)
+OPENAI_API_KEY=unused OPENAI_BASE_URL=http://localhost:11434/v1 perishable-proxy
 ```
 
-**Response:**
-```json
-{
-  "sessionId": "session-id-string",
-  "expiresAt": 1234567890
-}
-```
-
-### POST /openai/*
-
-Proxy endpoint for OpenAI API calls.
-
-**Headers:**
-- `X-Session-ID`: Session ID obtained from /session endpoint
-
-**Response:**
-Forwarded from OpenAI API.
-
-### GET /health
-
-Health check endpoint.
-
-**Response:**
-```json
-{
-  "status": "ok",
-  "timestamp": "2023-01-01T00:00:00.000Z",
-  "uptime": 1234.56
-}
-```
+---
 
 ## Configuration
-
-### Server Options
-
-```typescript
-interface PerishableServerOptions {
-  openaiApiKey: string;
-  openaiBaseUrl?: string;  // Base URL for OpenAI API (default: https://api.openai.com/v1)
-  port?: number;
-  
-  rateLimitOptions?: {
-    points?: number;        // Number of requests allowed
-    duration?: number;      // Time window in seconds
-    blockDuration?: number; // Block duration in seconds
-  };
-  
-  clientValidationOptions?: {
-    enableFingerprintValidation?: boolean;  // Enable fingerprint validation
-    maxSessionsPerFingerprint?: number;     // Max sessions per fingerprint
-    enableEntropyValidation?: boolean;      // Enable entropy validation
-    minEntropyThreshold?: number;           // Minimum entropy threshold
-  };
-  
-  sessionOptions?: {
-    timeout?: number; // Session timeout in milliseconds
-  };
-  
-  securityOptions?: {
-    enableCORS?: boolean;    // Enable CORS
-    allowedOrigins?: string[]; // Allowed origins for CORS
-  };
-}
-```
-
-### Configuration File
-
-You can create a `perishable.config.json` file in your project directory to configure the server:
-
-```json
-{
-  "port": 3000,
-  "rateLimitOptions": {
-    "points": 100,
-    "duration": 60,
-    "blockDuration": 60
-  },
-  "clientValidationOptions": {
-    "enableFingerprintValidation": true,
-    "maxSessionsPerFingerprint": 5,
-    "enableEntropyValidation": true,
-    "minEntropyThreshold": 50
-  },
-  "sessionOptions": {
-    "timeout": 1800000
-  },
-  "securityOptions": {
-    "enableCORS": true,
-    "allowedOrigins": ["*"]
-  }
-}
-```
 
 ### CLI Options
 
@@ -299,81 +110,168 @@ You can create a `perishable.config.json` file in your project directory to conf
 perishable-proxy [options]
 
 Options:
-  -c, --config <path>     Path to configuration file
-  -p, --port <number>     Port to run the server on
-  --openai-api-key <key>  OpenAI API key
-  -h, --help              Display help for command
-  -V, --version           Display version information
+  -c, --config <path>       Path to config file
+  -p, --port <number>       Port (default: 3000)
+  --openai-api-key <key>    API key
+  --openai-base-url <url>   Base URL
+  -V, --version             Version
+  -h, --help                Help
 ```
 
-### Client Options
+### Config File
 
-```typescript
-interface PerishableClientOptions {
-  proxyUrl: string;
-  apiKey?: string;
-  
-  abusePreventionOptions?: {
-    maxRetries?: number;          // Maximum number of retries
-    retryDelay?: number;          // Delay between retries in ms
-    requestTimeout?: number;      // Request timeout in ms
-    requireUserInteraction?: boolean; // Require user interaction for entropy
-  };
-  
-  sessionOptions?: {
-    expiryBuffer?: number; // Buffer time before session expiry (ms)
-  };
+Create `perishable.config.json`:
+
+```json
+{
+  "port": 3000,
+  "rateLimitOptions": {
+    "points": 100,
+    "duration": 60
+  },
+  "clientValidationOptions": {
+    "enableFingerprintValidation": true,
+    "maxSessionsPerFingerprint": 5
+  }
 }
 ```
 
-## Testing
+### Programmatic Usage
 
-Perishable includes a comprehensive test suite:
+```javascript
+import { server } from 'perishable';
 
-### Unit Tests
+const proxy = new server.PerishableServer({
+  openaiApiKey: process.env.OPENAI_API_KEY,
+  port: 3000,
+  rateLimitOptions: {
+    points: 100,        // requests per window
+    duration: 60,       // window in seconds
+    blockDuration: 60   // block duration when exceeded
+  },
+  clientValidationOptions: {
+    enableFingerprintValidation: true,
+    maxSessionsPerFingerprint: 5,
+    enableEntropyValidation: true
+  }
+});
 
-```bash
-npm test
+proxy.start();
 ```
 
-### Client Tests
+---
 
-```bash
-npm test src/client/__tests__/perishable-client.test.ts
+## Client Usage
+
+### Basic
+
+```javascript
+import { client } from 'perishable';
+
+client.PerishableOpenAI.initEntropyCollection();
+
+const ai = new client.PerishableOpenAI({
+  proxyUrl: 'http://localhost:3000'
+});
+
+// Chat
+const chat = await ai.createChatCompletion({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Hello!' }]
+});
+
+// Embeddings
+const embed = await ai.createEmbedding({
+  model: 'text-embedding-ada-002',
+  input: 'Hello world'
+});
+
+// List models
+const models = await ai.listModels();
 ```
 
-### Building
+### With Options
+
+```javascript
+const ai = new client.PerishableOpenAI({
+  proxyUrl: 'http://localhost:3000',
+  abusePreventionOptions: {
+    maxRetries: 3,
+    retryDelay: 1000,
+    requestTimeout: 30000
+  },
+  sessionOptions: {
+    expiryBuffer: 5 * 60 * 1000  // refresh 5 min before expiry
+  }
+});
+```
+
+---
+
+## How Security Works
+
+Perishable uses defense-in-depth:
+
+1. **Client Fingerprinting** - Unique ID from browser characteristics
+2. **Entropy Collection** - Requires mouse/keyboard activity (blocks bots)
+3. **JWT Sessions** - Short-lived tokens tied to fingerprints
+4. **Rate Limiting** - Per-client request throttling
+5. **CORS Protection** - Whitelist allowed origins
+
+The client must prove it's a real user before getting a session token. The token is tied to their fingerprint, so it can't be stolen and reused.
+
+---
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/session` | POST | Create a session (returns JWT) |
+| `/openai/*` | POST | Proxy to OpenAI API |
+| `/health` | GET | Health check |
+
+---
+
+## Documentation
+
+Full documentation available at [documentation/](./documentation/).
+
+- [Getting Started](./documentation/docs/getting-started.md)
+- [Server Guide](./documentation/docs/guides/server.md)
+- [Client Guide](./documentation/docs/guides/client.md)
+- [CLI Guide](./documentation/docs/guides/cli.md)
+- [API Reference](./documentation/docs/api/)
+- [Configuration](./documentation/docs/configuration.md)
+
+---
+
+## Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Build
 npm run build
-```
 
-### Linting
+# Run tests
+npm test
 
-```bash
+# Lint
 npm run lint
+
+# Format
+npm run format
 ```
 
-## Security Approach
-
-Perishable uses a defense-in-depth security approach:
-
-1. **Server-side Validation** - All critical security checks happen on the server
-2. **Client Fingerprinting** - Identifies and tracks clients to prevent abuse
-3. **Entropy Collection** - Requires user interaction to prevent automated abuse
-4. **Session Management** - Time-limited sessions with automatic expiration
-5. **Rate Limiting** - Prevents abuse through request throttling
-6. **CORS Protection** - Controls which origins can access the API
-
-### Obfuscation
-
-Perishable does not rely on obfuscation for security because:
-- Client-side obfuscation provides minimal security since all code is visible in the browser
-- Server-side obfuscation is unnecessary since server code should not be publicly accessible
-- True security comes from API-level protections, not code obfuscation
-
-Instead, Perishable focuses on strong server-side validation and multiple layers of protection.
+---
 
 ## License
 
 MIT
+
+---
+
+<p align="center">
+  <sub>Built for developers who ship fast but don't ship their secrets.</sub>
+</p>
