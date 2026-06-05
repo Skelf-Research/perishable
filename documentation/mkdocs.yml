@@ -1,7 +1,9 @@
+site_url: https://docs.skelfresearch.com/perishable/
 site_name: Perishable
 site_description: Secure proxy for OpenAI APIs - Protect your API keys from abuse
-repo_url: https://github.com/nicksarkar/perishable
-repo_name: perishable
+repo_url: https://github.com/Skelf-Research/perishable
+repo_name: Skelf-Research/perishable
+edit_uri: edit/main/documentation/docs/
 
 theme:
   name: material
