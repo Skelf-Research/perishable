@@ -10,6 +10,12 @@
 
 Perishable is a drop-in proxy that lets your frontend talk to OpenAI (or any compatible API) without exposing your secret keys. Built-in bot protection, rate limiting, and session management included.
 
+<p align="center">
+  <a href="https://perishable.skelfresearch.com"><b>Website</b></a> •
+  <a href="https://docs.skelfresearch.com/perishable">Documentation</a> •
+  <a href="https://skelfresearch.com">Skelf Research</a>
+</p>
+
 ---
 
 ## Why Perishable?
@@ -275,3 +281,15 @@ MIT
 <p align="center">
   <sub>Built for developers who ship fast but don't ship their secrets.</sub>
 </p>
+
+---
+
+## Part of Skelf Research
+
+`perishable` is built by **[Skelf Research](https://skelfresearch.com)** — an independent UK AI research lab publishing production-grade open-source projects.
+
+🌐 [Website](https://perishable.skelfresearch.com) · 📚 [Documentation](https://docs.skelfresearch.com/perishable) · 🔬 [All projects](https://skelfresearch.com/projects) · 🤗 [Hugging Face](https://huggingface.co/skelfresearch)
+
+**Related projects:** [route-switch](https://route-switch.skelfresearch.com) (self-improving LLM gateway), [promptel](https://promptel.skelfresearch.com) (declarative prompt DSL), [anouk](https://anouk.skelfresearch.com) (AI browser extensions)
+
+<sub>Released under MIT / Apache-2.0. © Skelf Research Limited.</sub>
